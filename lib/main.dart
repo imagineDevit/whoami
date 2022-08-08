@@ -1,16 +1,38 @@
-import 'package:flutter/material.dart';
-import 'package:henri_sedjame/misc/images.dart';
-import 'package:henri_sedjame/misc/logo-properties.dart';
-import 'package:henri_sedjame/presentation/pages/first-page.dart';
+import 'dart:convert';
 
-void main() {
-  runApp(const MyApp());
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
+import 'package:henri_sedjame/models/data.dart';
+import 'package:henri_sedjame/models/value.dart';
+import 'package:henri_sedjame/presentation/notifiers/data-notifier.dart';
+import 'package:henri_sedjame/presentation/pages/home-page.dart';
+
+void main() async {
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  GetIt getIt = GetIt.I;
+
+  var data = await rootBundle.loadString("data/data.json")
+  .then((value) => json.decode(value))
+  .then((value) => Value<dynamic>.fromJson(value))
+  .then((value)=>
+    Value<Data>()
+        ..fr = Data.fromJson(value.fr)
+        ..en = Data.fromJson(value.en)
+  );
+
+  getIt.registerSingleton(DataNotifier(data.fr));
+
+  runApp(MyApp(data: data));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
+  final Value<Data> data;
+  const MyApp({Key? key, required this.data}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -19,72 +41,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(),
+      home: HomePage(data: data),
     );
   }
-}
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-
-  late ScrollController _scrollController;
-  double logoPositionTop = 0.0;
-  double? logoPositionLeft;
-  double logoSize = 1000.0;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController() ..addListener(() {
-      var offset = _scrollController.offset;
-      logoPositionTop = offset;
-      var screenHeight = MediaQuery.of(context).size.height;
-      var initialPositionLeft = (MediaQuery.of(context).size.width/2) - (maxLogoSize/2);
-      if (offset < screenHeight) {
-        logoSize = maxLogoSize - (((maxLogoSize - minLogoSize)/screenHeight)*offset);
-        logoPositionLeft = initialPositionLeft - ((initialPositionLeft/screenHeight)*offset);
-      }
-      setState(() => {});
-    });
-  }
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        controller: _scrollController,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Column(
-              children: [
-                const FirstPage(),
-                Container(
-                  height: MediaQuery.of(context).size.height,
-                  decoration: const BoxDecoration(
-                    color: Color.fromRGBO(28, 24, 33, 1),
-                  ),
-                ),
-              ],
-            ),
-            Positioned(
-                top: logoPositionTop,
-                left: logoPositionLeft,
-                child: Image(
-                    image: const AssetImage(logoImg),
-                    width: logoSize,
-                )
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

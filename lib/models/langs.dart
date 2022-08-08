@@ -1,0 +1,4 @@
+
+enum Lang {
+  FR, EN
+}
