@@ -1,0 +1,16 @@
+{
+  "fr": {
+    "me": {
+      "name": "HENRI JOEL SEDJAME",
+      "title": "DÉVELOPPEUR BACKEND",
+      "description": "Qui suis-je? <> Un passionné de développement."
+    }
+  },
+  "en": {
+    "me": {
+      "name": "HENRI JOEL SEDJAME",
+      "title": "BACKEND DEVELOPER",
+      "description": "Who am I ? <> Okay! A passionate developer"
+    }
+  }
+}
